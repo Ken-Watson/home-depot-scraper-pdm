@@ -18,21 +18,27 @@ class CategoryCrawler(CrawlSpider):
     allowed_domains = ["homedepot.com"]
     start_urls = ["https://www.homedepot.com/c/site_map"]
 
-    # category_link_extractor = LinkExtractor()
-    # rule_category_link_extractor = Rule(
-    #     category_link_extractor, callback="parse_category", follow=False
-    # )
     rules = (Rule(LinkExtractor(allow=("/b/",)), callback="parse_category"),)
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryCrawler, self).__init__(*args, **kwargs)
+        self.seen_urls = set()
 
     def parse_category(self, response):
         """Parse category links."""
         category_links = response.css("a[href*='/b/']::attr(href)").getall()
         for category_link in category_links:
-            yield {
-                "category": response.css('a[href="' + category_link + '"]::text').get(),
-                "url": category_link,
-            }
-        # yield {
-        #     "category": response.css("p > a::text").get(),
-        #     "url": response.css("p > a::attr(href)").get(),
-        # }
+            if category_link not in self.seen_urls:
+                self.seen_urls.add(category_link)
+                yield {
+                    "category": response.css(
+                        'a[href="' + category_link + '"]::text'
+                    ).get(),
+                    "url": category_link,
+                }
+        # category_links = response.css("a[href*='/b/']::attr(href)").getall()
+        # for category_link in category_links:
+        #     yield {
+        #         "category": response.css('a[href="' + category_link + '"]::text').get(),
+        #         "url": category_link,
+        #     }
