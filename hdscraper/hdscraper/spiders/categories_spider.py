@@ -21,7 +21,7 @@ class CategoryCrawler(CrawlSpider):
     rules = (Rule(LinkExtractor(allow=("/b/",)), callback="parse_category"),)
 
     def __init__(self, *args, **kwargs):
-        super(CategoryCrawler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.seen_urls = set()
 
     def parse_category(self, response):
