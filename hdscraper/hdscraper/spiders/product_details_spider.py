@@ -7,7 +7,7 @@ from scrapy.crawler import CrawlerProcess
 
 
 class HomeDepotSpider(scrapy.Spider):
-    """ 
+    """
     Scrapy spider class that defines the behavior of the spider for scraping
     product data from the Home Depot website.
     """

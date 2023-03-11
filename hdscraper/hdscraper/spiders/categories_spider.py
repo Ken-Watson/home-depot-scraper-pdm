@@ -6,8 +6,10 @@ and extracts all category names and links.
 import re
 
 import scrapy
+from database import DatabaseWriter
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
+from items import HdscraperCategoryItem
 
 
 class CategoryCrawler(CrawlSpider):
@@ -31,9 +33,12 @@ class CategoryCrawler(CrawlSpider):
         ),
     )
 
+    item = HdscraperCategoryItem(map)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.seen_urls = set()
+        self.db_writer = DatabaseWriter(hd_products.db)
 
     def parse_category(self, response):
         """Parse category links."""
@@ -47,8 +52,10 @@ class CategoryCrawler(CrawlSpider):
             if category_link not in self.seen_urls:
                 self.seen_urls.add(category_link)
                 if link.css("::text").get().strip():
-                    yield {
+                    data {
                         "category": link.css("::text").get().strip(),
                         "url": category_link,
                     }
 
+                    self.db_writer.write_category(data)
+        self.db_writer.close()

@@ -6,7 +6,15 @@
 import scrapy
 
 
-class HdscraperItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class HdscraperCategoryItem(scrapy.Item):
+    category = scrapy.Field()
+    url = scrapy.Field()
+
+
+class HdscraperProductItems(scrapy.Item):
+    name = scrapy.Field()
+    sku = scrapy.Field()
+    price = scrapy.Field()
+    description = scrapy.Field()
+    category = scrapy.Field()
+    url = scrapy.Field()
