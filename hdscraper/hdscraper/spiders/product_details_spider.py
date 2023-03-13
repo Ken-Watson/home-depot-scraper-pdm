@@ -3,16 +3,17 @@
 import tkinter as tk
 
 import scrapy
+from hdscraper.items import HdscraperProductItems
 from scrapy.crawler import CrawlerProcess
 
 
-class HomeDepotSpider(scrapy.Spider):
+class ProductSpider(scrapy.Spider):
     """
     Scrapy spider class that defines the behavior of the spider for scraping
     product data from the Home Depot website.
     """
 
-    name = "homedepotdetails"
+    name = "detailsspider"
 
     def start_requests(self):
         urls = []
