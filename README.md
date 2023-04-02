@@ -15,7 +15,7 @@ The project will consist of two spiders:
   * ProductDetailsSpider: This spider will use the category links stored in the database to extract product details such as name, price, and description.
   
 ## Database Schema:
-The database will consist of a single table:
+The database will consist of two tables:
 
   * categories: This table will store the category name and category link for each category.
   * product_details: This table will store the product details such as product name, description, dimensions, price, rating, etc.
