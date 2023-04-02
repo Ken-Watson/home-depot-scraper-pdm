@@ -23,7 +23,7 @@ class SqliteCategoryPipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.conn = sqlite3.connect("hdscraper.db")
+        self.conn = sqlite3.connect("hdscraper2.db")
         self.cursor = self.conn.cursor()
         self.create_table()
 
