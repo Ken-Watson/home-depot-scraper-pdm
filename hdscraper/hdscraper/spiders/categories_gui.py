@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def on_button_click():
+def button_clicked():
     categories = []
     for i in range(len(category_vars)):
         if category_vars[i].get() == 1:
@@ -19,7 +19,9 @@ def on_button_click():
 
 def get_categories():
     """Get categories from database"""
-    open_db = sqlite3.connect("hdscraper.db")
+    open_db = sqlite3.connect(
+        "C:/Users/watso/OneDrive/DataProjects/Git Repos/home-depot-scraper-pdm/hdscraper/hdscraper/hdscraper.db"
+    )
     cursor = open_db.cursor()
     categories = cursor.execute("SELECT category FROM categories")
     categories = [category[0] for category in categories]
@@ -76,7 +78,7 @@ def gui():
     # Calculate the width of the window based on the number of columns
     width = cols * 200 + 50
 
-    tk.Button(root, text="Scrape", command=on_button_click).pack()
+    tk.Button(root, text="Scrape", command=button_clicked).pack()
 
     root.geometry(f"{width}x500")
     root.mainloop()
