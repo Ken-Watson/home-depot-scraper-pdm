@@ -16,7 +16,6 @@ class CategorySpider(CrawlSpider):
     Scrapy crawler class that goes to the site map page and extracts all
     category links.
     """
-
     name = "categoryspider"
     allowed_domains = ["homedepot.com"]
     start_urls = ["https://www.homedepot.com/c/site_map"]
@@ -38,15 +37,10 @@ class CategorySpider(CrawlSpider):
         ),
     )
 
-    def __init__(self, *args, **kwargs):
-        # Call the constructor of the parent class.
-        super().__init__(*args, **kwargs)
-        # Create a set to store the URLs that have been seen.
-        self.seen_urls = set()
-
     def parse_category(self, response):
         """Parse category links."""
         item = HdscraperCategoryItem()
+        seen_urls = set()
         for link in response.css("a[href*='https://www.homedepot.com/b/']"):
             # Skip links that don't match the given regular expression
             if not re.match(
@@ -56,11 +50,10 @@ class CategorySpider(CrawlSpider):
                 continue
             category_link = link.css("::attr(href)").get()
             # If the URL has not been seen before, add it to the set of seen URLs
-            if category_link not in self.seen_urls:
-                self.seen_urls.add(category_link)
+            if category_link not in seen_urls:
+                seen_urls.add(category_link)
                 if link.css("::text").get().strip():
                     item["category"] = link.css("::text").get().strip()
                     item["url"] = category_link
                     # Yield the item to be processed by the pipeline
                     yield item
-
