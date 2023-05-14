@@ -20,8 +20,8 @@ The database will consist of two tables:
   * categories: This table will store the category name and category link for each category.
   * product_details: This table will store the product details such as product name, description, dimensions, price, rating, etc.
   
-## GUI:
-The GUI will allow the user to select multiple categories they want to query. Once the user has made their selection, they will click a button which will trigger the scraping process.
+## Web Interface:
+The web interface built with Streamlit will allow the user to select multiple categories they want to query. Once the user has made their selection, they will click a button which will trigger the scraping process.
 
 ## Scraping Process:
 1. The CategoryCrawler spider will be executed. It will extract all the category links and category names from the Home Depot website.

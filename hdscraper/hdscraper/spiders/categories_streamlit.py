@@ -1,0 +1,100 @@
+"""
+This module provides a web application built with Streamlit that enables
+the user to select a product category, fetch product data from a SQLite
+database, and display the product data in both table format and as a
+JSON API endpoint. 
+
+The web application assumes that a separate Scrapy project periodically
+scrapes product data from various categories and stores the data in an
+SQLite database. The table names in the SQLite database should correspond
+to the product categories.
+
+Functions:
+main() - The main function of the Streamlit application. It provides
+a user interface for the user to select a product category, fetch the
+product data, and display the data.
+
+get_products_from_db(category: str) - Function to fetch product data
+from the SQLite database. It takes a product category as input and returns
+a list of dictionaries where each dictionary contains the product data.
+
+Modules used:
+streamlit - Used to build the web application.
+json - Used to convert the product data to JSON format.
+sqlalchemy - Used to connect to the SQLite database and fetch data.
+"""
+
+import streamlit as st
+import json
+from sqlalchemy import create_engine, MetaData, Table, select
+
+# Create a database connection
+engine = create_engine(r"sqlite:///C:\Users\watso\OneDrive\DataProjects\Git Repos\home-depot-scraper-pdm\hdscraper\hdscraper\hdscraper.db")
+meta = MetaData()
+
+
+# Create a table object
+def get_categories_from_db():
+    """
+    Function to fetch product data from the SQLite database. It takes a
+    product category as input and returns a list of dictionaries where
+    each dictionary contains the product data.
+    """
+    categories = Table("categories", meta, autoload=True, autoload_with=engine)
+
+    # Create a select query
+    query = select(categories.c.category)
+    result = engine.execute(query).fetchall()
+
+    # Convert the result to a list of dictionaries
+    categories = [category[0] for category in result]
+
+    return categories
+
+def get_selected_category_from_db(selected_category):
+    """
+    Function to fetch product data from the SQLite database. It takes a
+    product category as input and returns a list of dictionaries where
+    each dictionary contains the product data.
+    """
+    categories = Table("categories", meta, autoload=True, autoload_with=engine)
+
+    # Create a select query
+    query = select(categories.c.category).where(categories.c.category == selected_category)
+    result = engine.execute(query).fetchall()
+
+    # Convert the result to a list of dictionaries
+    selected_category = [category[0] for category in result]
+
+    return selected_category
+
+def main():
+    """
+    The main function of the Streamlit application. It provides a user
+    interface for the user to select a product category, fetch the product
+    data, and display the data.
+    """
+    st.title('Product Scraper')
+
+    # List the available product categories
+    # categories = ['electronics', 'clothing', 'home', 'toys']
+
+    categories = get_categories_from_db()
+
+    selected_category = st.selectbox('Choose a product category', categories)
+
+    # Create a button for the user to start the scraping process
+    if st.button('Fetch Products'):
+        st.write(f'Fetching products in the {selected_category} category...')
+        fetched_products = get_selected_category_from_db(selected_category)
+        st.write(f'Found {len(fetched_products)} products.')
+
+        # # Display the fetched data in a table
+        # st.write(fetched_products)
+
+        # # Create a JSON API endpoint with the fetched data
+        # json_data = json.dumps(fetched_products)
+        # st.text_area('JSON API Endpoint:', value=json_data, height=200)
+
+if __name__ == '__main__':
+    main()
