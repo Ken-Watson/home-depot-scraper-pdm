@@ -23,7 +23,9 @@ class SqliteCategoryPipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.conn = sqlite3.connect("hdscraper2.db")
+        self.conn = sqlite3.connect(
+            r"c:\Users\watso\OneDrive\DataProjects\Git Repos\home-depot-scraper-pdm\hdscraper\hdscraper\hdscraper.db"
+        )
         self.cursor = self.conn.cursor()
         self.create_table()
 
@@ -49,20 +51,11 @@ class SqliteCategoryPipeline:
 
     def store_db(self, item):
         """Write the categories and links to the database."""
+        category_title = item[
+            "category"
+        ].title()  # Capitalize each word in the category
         self.cursor.execute(
             """INSERT INTO categories (category, url) VALUES (?, ?)""",
-            (item["category"], item["url"]),
+            (category_title, item["url"]),
         )
         self.conn.commit()
-
-
-# class SeenUrlsPipeline:
-#     def __init__(self):
-#         self.seen_urls = set()
-
-#     def process_item(self, item, spider):
-#         if item["url"] in self.seen_urls:
-#             raise DropItem(f"Duplicate item found: {item!r}")
-#         else:
-#             self.seen_urls.add(item["url"])
-#             return item
