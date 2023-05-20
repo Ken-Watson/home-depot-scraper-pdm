@@ -24,14 +24,31 @@ json - Used to convert the product data to JSON format.
 sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
+import os
+from dotenv import load_dotenv
+
+
 import streamlit as st
 import json
+import os
 from sqlalchemy import create_engine, MetaData, Table, select
 
-# Create a database connection
-engine = create_engine(r"sqlite:///C:\Users\watso\OneDrive\DataProjects\Git Repos\home-depot-scraper-pdm\hdscraper\hdscraper\hdscraper.db")
-meta = MetaData()
+# Load the .env file
+load_dotenv()
 
+def get_database_url():
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise Exception("DATABASE_URL environment variable not found. Please set it in your .env file.")
+    return database_url
+
+# Create a database connection
+database_url = get_database_url()
+print(database_url)
+print("Current working directory:", os.getcwd())
+
+engine = create_engine(database_url)
+meta = MetaData(bind=engine)
 
 # Create a table object
 def get_categories_from_db():
