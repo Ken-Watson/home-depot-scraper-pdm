@@ -173,3 +173,6 @@ cython_debug/
 *.vsix
 hdscraper/hdscraper/hdscraper.db
 .vscode/settings.json
+
+# Ignore misc folder
+Misc/
