@@ -4,11 +4,11 @@ and extracts all category names and links.
 """
 
 import re
-
 import scrapy
-from hdscraper.items import HdscraperCategoryItem
+
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
+from hdscraper.items import HdscraperCategoryItem
 
 
 class CategorySpider(CrawlSpider):
@@ -37,6 +37,14 @@ class CategorySpider(CrawlSpider):
             follow=False,
         ),
     )
+
+    # pylint: disable=W0221
+    def parse(self, response):
+        """
+        Default callback used by Scrapy to process responses.
+        Override this method to handle the response and extract data.
+        """
+        return self.parse_category(response)
 
     def parse_category(self, response):
         """Parse category links."""
