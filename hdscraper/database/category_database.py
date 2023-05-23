@@ -1,16 +1,12 @@
-"""
-This module contains the DatabaseWriter class.
-"""
+"""This module is used to handle operations for the categories table."""
 
-import sqlite3
+from base_database import BaseDatabase
 
+class CategoryDatabase(BaseDatabase):
+    """This class is used to handle operations for the categories table."""
 
-class DatabaseWriter:
-    """This class is used to write data to a database."""
-
-    def __init__(self):
-        self.conn = sqlite3.connect("hd_products.db")
-        self.cursor = self.conn.cursor()
+    def create_table(self):
+        """Create the category table"""
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS categories ("
             "id INTEGER PRIMARY KEY,"
@@ -20,11 +16,12 @@ class DatabaseWriter:
         )
         self.conn.commit()
 
-    def write_category(self, category):
+    def write_data(self, data):
         """Write the categories and links to the database."""
+        category_title = data["category"].title() # Capitalize each word
         self.cursor.execute(
             """INSERT INTO categories (category, url) VALUES (?, ?)""",
-            (category["category"], category["url"]),
+            (category_title, data["url"]),
         )
         self.conn.commit()
 
