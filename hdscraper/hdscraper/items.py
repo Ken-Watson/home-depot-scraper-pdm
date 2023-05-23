@@ -11,13 +11,3 @@ class HdscraperCategoryItem(scrapy.Item):
 
     category = scrapy.Field()
     url = scrapy.Field()
-
-
-class HdscraperProductItems(scrapy.Item):
-    """Product item."""
-    name = scrapy.Field()
-    sku = scrapy.Field()
-    price = scrapy.Field()
-    description = scrapy.Field()
-    category = scrapy.Field()
-    url = scrapy.Field()
