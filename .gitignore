@@ -177,6 +177,12 @@ hdscraper/hdscraper/hdscraper.db
 
 # Ignore misc folder
 Misc/
+<<<<<<< HEAD
 =======
 **.db
 >>>>>>> 611266e8c6a421d8975db6736417494dee96b215
+=======
+
+# Ignore sqlite database file
+.db
+>>>>>>> e1037877a706e5729c7c7ce169af61b14c4ee732

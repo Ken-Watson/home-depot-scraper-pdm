@@ -7,14 +7,7 @@ import scrapy
 
 
 class HdscraperCategoryItem(scrapy.Item):
-    category = scrapy.Field()
-    url = scrapy.Field()
+    """Category item."""
 
-
-class HdscraperProductItems(scrapy.Item):
-    name = scrapy.Field()
-    sku = scrapy.Field()
-    price = scrapy.Field()
-    description = scrapy.Field()
     category = scrapy.Field()
     url = scrapy.Field()
