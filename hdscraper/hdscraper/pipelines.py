@@ -7,8 +7,10 @@
 from typing import Optional
 
 from database.category_database import CategoryDatabase
-# from itemadapter import ItemAdapter
+from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+from hdscraper.items import HdscraperCategoryItem
+
 
 
 class CategoryDatabasePipeline:
@@ -28,7 +30,10 @@ class CategoryDatabasePipeline:
 
     def process_item(self, data, spider):
         """Write the categories and links to the database."""
-        if data.get("category") and data.get("url"):
+        adapter = ItemAdapter(data)
+        category = adapter.get("category")
+        url = adapter.get("url")
+        if category and url:
             if self.database is not None:
                 self.database.write_data(data)
             return data
