@@ -2,7 +2,7 @@
 This module provides a web application built with Streamlit that enables
 the user to select a product category, fetch product data from a SQLite
 database, and display the product data in both table format and as a
-JSON API endpoint. 
+JSON API endpoint.
 
 The web application assumes that a separate Scrapy project periodically
 scrapes product data from various categories and stores the data in an
@@ -32,9 +32,21 @@ import streamlit as st
 import json
 import os
 from sqlalchemy import create_engine, MetaData, Table, select
+import os
+from dotenv import load_dotenv
 
+<<<<<<< HEAD:hdscraper/hdscraper/categories/categories_streamlit.py
 # Load the .env file
 load_dotenv()
+=======
+load_dotenv()
+
+db_path = os.getenv("DB_PATH")
+db_url = f"sqlite:///{db_path}"
+engine = create_engine(db_url)
+meta = MetaData()
+meta.reflect(bind=engine)
+>>>>>>> 611266e8c6a421d8975db6736417494dee96b215:hdscraper/hdscraper/spiders/categories_streamlit.py
 
 def get_database_url():
     database_url = os.getenv("DATABASE_URL")
@@ -61,7 +73,8 @@ def get_categories_from_db():
 
     # Create a select query
     query = select(categories.c.category)
-    result = engine.execute(query).fetchall()
+    conn = engine.connect()
+    result = conn.execute(query).fetchall()
 
     # Convert the result to a list of dictionaries
     categories = [category[0] for category in result]
@@ -78,7 +91,8 @@ def get_selected_category_from_db(selected_category):
 
     # Create a select query
     query = select(categories.c.category).where(categories.c.category == selected_category)
-    result = engine.execute(query).fetchall()
+    conn = engine.connect()
+    result = conn.execute(query).fetchall()
 
     # Convert the result to a list of dictionaries
     selected_category = [category[0] for category in result]
