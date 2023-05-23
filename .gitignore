@@ -171,8 +171,9 @@ cython_debug/
 
 # Built Visual Studio Code Extensions
 *.vsix
-hdscraper/hdscraper/hdscraper.db
+hdscraper/hdscraper/database/hdscraper.db
 .vscode/settings.json
 
 # Ignore misc folder
 Misc/
+**.db
