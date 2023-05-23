@@ -8,7 +8,13 @@ import scrapy
 
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-from hdscraper.items import HdscraperCategoryItem
+
+
+class HdscraperCategoryItem(scrapy.Item):
+    """Category item."""
+
+    category = scrapy.Field()
+    url = scrapy.Field()
 
 
 class CategorySpider(CrawlSpider):
