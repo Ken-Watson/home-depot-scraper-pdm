@@ -176,4 +176,8 @@ hdscraper/hdscraper/database/hdscraper.db
 
 # Ignore misc folder
 Misc/
+
 **.db
+
+# Ignore tree structure
+tree.txt

@@ -113,5 +113,5 @@ def main():
         # json_data = json.dumps(fetched_products)
         # st.text_area('JSON API Endpoint:', value=json_data, height=200)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

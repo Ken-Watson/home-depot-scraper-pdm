@@ -1,6 +1,6 @@
 """This module is used to handle operations for the product details table."""
 
-from base_database import BaseDatabase
+from database.base_database import BaseDatabase
 
 class ProductDetailDatabase(BaseDatabase):
     """This class is used to handle operations for the product details table."""
