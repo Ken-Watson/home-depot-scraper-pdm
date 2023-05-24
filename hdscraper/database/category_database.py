@@ -1,6 +1,6 @@
 """This module is used to handle operations for the categories table."""
 
-from base_database import BaseDatabase
+from database.base_database import BaseDatabase
 
 class CategoryDatabase(BaseDatabase):
     """This class is used to handle operations for the categories table."""
@@ -8,11 +8,13 @@ class CategoryDatabase(BaseDatabase):
     def create_table(self):
         """Create the category table"""
         self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS categories ("
-            "id INTEGER PRIMARY KEY,"
-            "category TEXT,"
-            "url TEXT,"
-            ")"
+            """
+            CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY,
+            category TEXT,
+            url TEXT
+            )
+            """
         )
         self.conn.commit()
 

@@ -9,7 +9,7 @@ from typing import Optional
 from database.category_database import CategoryDatabase
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
-from hdscraper.items import HdscraperCategoryItem
+# from hdscraper.items import HdscraperCategoryItem
 
 
 
@@ -20,7 +20,7 @@ class CategoryDatabasePipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.database = CategoryDatabase("categories.db")
+        self.database = CategoryDatabase("database/categories.db")
         self.database.create_table()
 
     def close_spider(self, spider):
