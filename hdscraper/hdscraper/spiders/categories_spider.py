@@ -4,18 +4,18 @@ and extracts all category names and links.
 """
 
 import re
-
 import scrapy
-from hdscraper.items import HdscraperCategoryItem
+
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-
+from hdscraper.items import HdscraperCategoryItem
 
 class CategorySpider(CrawlSpider):
     """
     Scrapy crawler class that goes to the site map page and extracts all
     category links.
     """
+
     name = "categoryspider"
     allowed_domains = ["homedepot.com"]
     start_urls = ["https://www.homedepot.com/c/site_map"]
@@ -37,9 +37,18 @@ class CategorySpider(CrawlSpider):
         ),
     )
 
+    # pylint: disable=W0221
+    def parse(self, response):
+        """
+        Default callback used by Scrapy to process responses.
+        Override this method to handle the response and extract data.
+        """
+        return self.parse_category(response)
+
     def parse_category(self, response):
         """Parse category links."""
         item = HdscraperCategoryItem()
+
         seen_urls = set()
         for link in response.css("a[href*='https://www.homedepot.com/b/']"):
             # Skip links that don't match the given regular expression
@@ -55,5 +64,6 @@ class CategorySpider(CrawlSpider):
                 if link.css("::text").get().strip():
                     item["category"] = link.css("::text").get().strip()
                     item["url"] = category_link
-                    # Yield the item to be processed by the pipeline
+
+                    # Yield the item to be processed in pipelines.py
                     yield item
