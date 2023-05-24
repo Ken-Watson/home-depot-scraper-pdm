@@ -2,7 +2,7 @@
 This module provides a web application built with Streamlit that enables
 the user to select a product category, fetch product data from a SQLite
 database, and display the product data in both table format and as a
-JSON API endpoint. 
+JSON API endpoint.
 
 The web application assumes that a separate Scrapy project periodically
 scrapes product data from various categories and stores the data in an
@@ -24,23 +24,21 @@ json - Used to convert the product data to JSON format.
 sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
-import os
-from dotenv import load_dotenv
-
-
-import streamlit as st
 import json
 import os
-from sqlalchemy import create_engine, MetaData, Table, select
+
+import streamlit as st
+from dotenv import load_dotenv
+from sqlalchemy import MetaData, Table, create_engine, select
 
 # Load the .env file
 load_dotenv()
 
 def get_database_url():
-    database_url = os.getenv("DATABASE_URL")
-    if not database_url:
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
         raise Exception("DATABASE_URL environment variable not found. Please set it in your .env file.")
-    return database_url
+    return db_url
 
 # Create a database connection
 database_url = get_database_url()
@@ -61,7 +59,8 @@ def get_categories_from_db():
 
     # Create a select query
     query = select(categories.c.category)
-    result = engine.execute(query).fetchall()
+    conn = engine.connect()
+    result = conn.execute(query).fetchall()
 
     # Convert the result to a list of dictionaries
     categories = [category[0] for category in result]
@@ -78,7 +77,8 @@ def get_selected_category_from_db(selected_category):
 
     # Create a select query
     query = select(categories.c.category).where(categories.c.category == selected_category)
-    result = engine.execute(query).fetchall()
+    conn = engine.connect()
+    result = conn.execute(query).fetchall()
 
     # Convert the result to a list of dictionaries
     selected_category = [category[0] for category in result]
@@ -113,5 +113,5 @@ def main():
         # json_data = json.dumps(fetched_products)
         # st.text_area('JSON API Endpoint:', value=json_data, height=200)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

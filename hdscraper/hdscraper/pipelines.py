@@ -4,65 +4,61 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-import sqlite3
+from typing import Optional
 
+from database.category_database import CategoryDatabase
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
+# from hdscraper.items import HdscraperCategoryItem
 
 
-class SqliteCategoryPipeline:
-    """Pipeline for storing scraped items in the SQLite database."""
 
+class CategoryDatabasePipeline:
+    """Pipeline to handle the categories table."""
     def __init__(self):
-        self.conn = None
-        self.cursor = None
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        """Used to instantiate the pipeline object with any crawler-specific settings."""
-        return cls()
+        self.database: Optional[CategoryDatabase] = None
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.conn = sqlite3.connect("hdscraper2.db")
-        self.cursor = self.conn.cursor()
-        self.create_table()
+        self.database = CategoryDatabase("database/categories.db")
+        self.database.create_table()
 
     def close_spider(self, spider):
         """Close the connection to the database."""
-        self.conn.close()
+        if self.database is not None:
+            self.database.close()
 
-    def create_table(self):
-        """Create the table if it doesn't exist."""
-        self.cursor.execute(
-            """CREATE TABLE IF NOT EXISTS categories (
-            id INTEGER PRIMARY KEY,
-            category TEXT,
-            url TEXT
-            );"""
-        )
-        self.conn.commit()
-
-    def process_item(self, item, spider):
-        """Run the store_db method to store the item in the database."""
-        self.store_db(item)
-        return item
-
-    def store_db(self, item):
+    def process_item(self, data, spider):
         """Write the categories and links to the database."""
-        self.cursor.execute(
-            """INSERT INTO categories (category, url) VALUES (?, ?)""",
-            (item["category"], item["url"]),
-        )
-        self.conn.commit()
+        adapter = ItemAdapter(data)
+        category = adapter.get("category")
+        url = adapter.get("url")
+        if category and url:
+            if self.database is not None:
+                self.database.write_data(data)
+            return data
+        raise DropItem(f"Missing category or url in {data}")
 
-
-# class SeenUrlsPipeline:
+# class ProductDetailDatabasePipeline:
+#     """Pipeline to handle the categories table."""
 #     def __init__(self):
-#         self.seen_urls = set()
+#         self.database: Optional[ProductDetailDatabase] = None
 
-#     def process_item(self, item, spider):
-#         if item["url"] in self.seen_urls:
-#             raise DropItem(f"Duplicate item found: {item!r}")
-#         else:
-#             self.seen_urls.add(item["url"])
-#             return item
+#     def open_spider(self, spider):
+#         """Open the connection to the database."""
+#         self.database = ProductDetailDatabase("product_details.db")
+#         self.database.create_table()
+
+#     def close_spider(self, spider):
+#         """Close the connection to the database."""
+#         if self.database is not None:
+#             self.database.close()
+
+#     def process_item(self, data, spider):
+#         """Write the product details to the database."""
+#         required_fields = ["category_id", "brand_name", "item_id", "model_number", "product_description", "price", "product_url"]
+#         if all(field in data for field in required_fields):
+#             if self.database is not None:
+#                 self.database.write_data(data)
+#             return data
+#         raise DropItem(f"Missing one or more required fields in {data}")
