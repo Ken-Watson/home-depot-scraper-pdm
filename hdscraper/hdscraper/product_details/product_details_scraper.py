@@ -98,26 +98,15 @@ def extract_product_data(product: dict) -> dict:
     info = product.get("info", {})
     identifiers = product.get("identifiers", {})
     pricing = product.get("pricing", {})
-    key_product_features_items = product.get("keyProductFeatures")
-    
-    if key_product_features_items and key_product_features_items != 'null':
-        key_product_features_items = key_product_features_items.get("keyProductFeaturesItems", [])
-    else:
-        key_product_features_items = []
+    key_product_features_items = product.get("keyProductFeatures", {}).get("keyProductFeaturesItems", [])
 
-    if key_product_features_items:
-        key_product_features = key_product_features_items[0]
-        features = key_product_features.get("features", [])
-    else:
-        features = []
-    
-    # create a list of features
     features_list = [
         {
             "name": feature.get("name"),
             "value": feature.get("value")
         }
-        for feature in features
+        for key_product_features_item in key_product_features_items
+        for feature in key_product_features_item.get("features", [])
     ]
 
     return {
@@ -131,16 +120,18 @@ def extract_product_data(product: dict) -> dict:
         "product_url": f"https://www.homedepot.com/{identifiers.get('canonicalUrl')}"
     }
 
+
 def process_products(products: List[dict], all_products: Optional[List[dict]] = None):
     """Process and print information about the products"""
-    if all_products is None:
-        all_products = []
+    all_products = all_products or []
+
     for product in products:
         data = extract_product_data(product)
         all_products.append(data)
         pprint(data)
         print("------------------------")
-    print(len(all_products), "products processed")
+
+    print(f"{len(all_products)} products processed")
 
 def get_product_data(url):
     """Retrieve and process product data for a given category"""
@@ -149,17 +140,15 @@ def get_product_data(url):
     total_products = None
     code = get_category_code(url)
     api_session = ApiSession(f"{url}{str(index)}")
-    all_products = []
+    all_products: List[dict] = []
 
     while total_products is None or index < total_products:
         response = api_session.make_api_request(api_url, index, code)
 
         if response:
-            data = response.get("data", {})
-            search_model = data.get("searchModel", {})
+            search_model = response.get("data", {}).get("searchModel", {})
             products = search_model.get("products", [])
             search_report = search_model.get("searchReport", {})
-
             total_products = search_report.get("totalProducts")
 
             process_products(products, all_products)
