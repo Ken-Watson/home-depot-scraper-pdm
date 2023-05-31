@@ -7,21 +7,27 @@ The aim of this project is to build a web scraper in Python using Scrapy. The we
   * Python 3
   * Scrapy
   * SQLite
-  
+
 ## Project Structure:
 The project will consist of two spiders:
 
   * CategoryCrawler: This spider will extract all the category links and category names from the Home Depot website. It will then store this information in a database.
   * ProductDetailsSpider: This spider will use the category links stored in the database to extract product details such as name, price, and description.
-  
+
 ## Database Schema:
 The database will consist of two tables:
 
   * categories: This table will store the category name and category link for each category.
   * product_details: This table will store the product details such as product name, description, dimensions, price, rating, etc.
-  
+
 ## Web Interface:
 The web interface built with Streamlit will allow the user to select multiple categories they want to query. Once the user has made their selection, they will click a button which will trigger the scraping process.
+
+Run it from the project root directory like this:
+
+```
+streamlit run hdscraper/front_end/categories_streamlit.py
+```
 
 ## Scraping Process:
 1. The CategoryCrawler spider will be executed. It will extract all the category links and category names from the Home Depot website.
