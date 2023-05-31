@@ -1,6 +1,6 @@
 """This module is used to handle operations for the product details table."""
 
-from base_database import BaseDatabase
+from .base_database import BaseDatabase
 
 class ProductDetailDatabase(BaseDatabase):
     """This class is used to handle operations for the product details table."""
@@ -30,8 +30,8 @@ class ProductDetailDatabase(BaseDatabase):
         # Implement the SQL query to insert product details.
         self.cursor.execute(
             """
-            INSERT INTO product_details 
-            (category_id, brand_name, item_id, model_number, product_description, price, product_url) 
+            INSERT INTO product_details
+            (category_id, brand_name, item_id, model_number, product_description, price, product_url)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
