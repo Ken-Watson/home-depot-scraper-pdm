@@ -1,6 +1,7 @@
 """This module is used to handle operations for the categories table."""
 
-from database.base_database import BaseDatabase
+from .base_database import BaseDatabase
+
 
 class CategoryDatabase(BaseDatabase):
     """This class is used to handle operations for the categories table."""
@@ -16,6 +17,7 @@ class CategoryDatabase(BaseDatabase):
             )
             """
         )
+        
         self.conn.commit()
 
     def write_data(self, data):
