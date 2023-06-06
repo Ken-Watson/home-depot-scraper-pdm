@@ -2,6 +2,7 @@
 
 from .base_database import BaseDatabase
 
+
 class CategoryDatabase(BaseDatabase):
     """This class is used to handle operations for the categories table."""
 

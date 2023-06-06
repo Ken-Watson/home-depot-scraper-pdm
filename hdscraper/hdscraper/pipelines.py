@@ -3,10 +3,9 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
-
+import os
 from typing import Optional
 
-from database.category_database import CategoryDatabase
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 
@@ -17,7 +16,7 @@ class CategoryDatabasePipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.database = CategoryDatabase("categories.db")
+        self.database = CategoryDatabase("database/categories.db")
         self.database.create_table()
 
     def close_spider(self, spider):
