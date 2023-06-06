@@ -24,6 +24,7 @@ json - Used to convert the product data to JSON format.
 sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
+import json
 import os
 
 import streamlit as st
@@ -33,11 +34,11 @@ from sqlalchemy import MetaData, Table, create_engine, select
 load_dotenv()
 
 def get_database_url():
-    """Function to get the database URL from the environment variables."""
-    url = os.getenv("DB_URL")
-    if not url:
-        raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
-    return url
+  """Function to get the database URL from the environment variables."""
+  url = os.getenv("DB_URL")
+  if not url:
+      raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
+  return url
 
 # Create a database connection
 db_url = get_database_url()
@@ -54,17 +55,17 @@ def get_categories_from_db():
     each dictionary contains the product data.
     """
 
-    with engine.connect() as conn:
-        meta = MetaData(bind=engine)
-        categories = Table("categories", meta, autoload=True, autoload_with=engine)
-        query = select(categories.c.category)
-        result = conn.execute(query).fetchall()
+  with engine.connect() as conn:
+      meta = MetaData(bind=engine)
+      categories = Table("categories", meta, autoload=True, autoload_with=engine)
+      query = select(categories.c.category)
+      result = conn.execute(query).fetchall()
 
-        # Convert the result to a list of dictionaries
-        categories = [category[0] for category in result]
-        print(categories)
+      # Convert the result to a list of dictionaries
+      categories = [category[0] for category in result]
+      print(categories)
 
-        return categories
+      return categories
 
 def get_selected_category_from_db(selected_category):
     """

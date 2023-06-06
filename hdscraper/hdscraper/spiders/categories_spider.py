@@ -10,7 +10,6 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from hdscraper.items import HdscraperCategoryItem
 
-
 class CategorySpider(CrawlSpider):
     """
     Scrapy crawler class that goes to the site map page and extracts all

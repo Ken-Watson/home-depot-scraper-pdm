@@ -23,8 +23,7 @@ class CategoryDatabasePipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        url = os.getenv("DB_URL")
-        self.database = CategoryDatabase(url)
+        self.database = CategoryDatabase("database/categories.db")
         self.database.create_table()
 
     def close_spider(self, spider):
