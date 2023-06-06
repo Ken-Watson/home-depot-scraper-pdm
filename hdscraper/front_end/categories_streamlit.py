@@ -36,7 +36,7 @@ def get_database_url():
     """Function to get the database URL from the environment variables."""
     url = os.getenv("DB_URL")
     if not url:
-        raise ValueError("DATABASE_URL environment variable not found. Please set it in your .env file.")
+        raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
     return url
 
 # Create a database connection
@@ -94,7 +94,7 @@ def main():
     categories = get_categories_from_db()
 
     selected_category = st.selectbox('Choose a product category', categories)
-    
+
     # Create a button for the user to start the scraping process
     if st.button('Fetch Products'):
         st.write(f'Fetching products in the {selected_category} category...')
