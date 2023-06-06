@@ -43,8 +43,8 @@ def get_database_url():
 db_url = get_database_url()
 engine = create_engine(db_url)
 
-print(db_url)
-print("Current working directory:", os.getcwd())
+# print(db_url)
+# print("Current working directory:", os.getcwd())
 
 # Create a table object
 def get_categories_from_db():
@@ -62,7 +62,7 @@ def get_categories_from_db():
 
         # Convert the result to a list of dictionaries
         categories = [category[0] for category in result]
-        print(categories)
+        # print(categories)
 
         return categories
 
