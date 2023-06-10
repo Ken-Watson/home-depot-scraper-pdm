@@ -8,6 +8,10 @@ from typing import Optional
 
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+from database.category_database import CategoryDatabase
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class CategoryDatabasePipeline:
     """Pipeline to handle the categories table."""
@@ -16,7 +20,9 @@ class CategoryDatabasePipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.database = CategoryDatabase("database/categories.db")
+        url = os.getenv("DB_URL")
+        self.database = CategoryDatabase(url)
+        # self.database = CategoryDatabase(r"hdscraper\categories.db")
         self.database.create_table()
 
     def close_spider(self, spider):

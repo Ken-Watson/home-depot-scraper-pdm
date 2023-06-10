@@ -24,11 +24,12 @@ json - Used to convert the product data to JSON format.
 sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
-import json
+
 import os
 
 import streamlit as st
 from dotenv import load_dotenv
+from product_details_scraper import ProductDetailsScraper, ApiSession
 from sqlalchemy import MetaData, Table, create_engine, select
 
 load_dotenv()
@@ -55,19 +56,19 @@ def get_categories_from_db():
     each dictionary contains the product data.
     """
 
-  with engine.connect() as conn:
-      meta = MetaData(bind=engine)
-      categories = Table("categories", meta, autoload=True, autoload_with=engine)
-      query = select(categories.c.category)
-      result = conn.execute(query).fetchall()
+    with engine.connect() as conn:
+        meta = MetaData(bind=engine)
+        categories = Table("categories", meta, autoload=True, autoload_with=engine)
+        query = select(categories.c.category)
+        result = conn.execute(query).fetchall()
 
         # Convert the result to a list of dictionaries
         categories = [category[0] for category in result]
-        # print(categories)
+        print(categories)
 
-      return categories
+        return categories
 
-def get_selected_category_from_db(selected_category):
+def get_selected_category_url_from_db(selected_category):
     """
     Function to fetch product data from the SQLite database. It takes a
     product category as input and returns a list of dictionaries where
@@ -76,7 +77,7 @@ def get_selected_category_from_db(selected_category):
     with engine.connect() as conn:
         meta = MetaData(bind=engine)
         categories = Table("categories", meta, autoload=True, autoload_with=engine)
-        query = select(categories.c.category).where(categories.c.category == selected_category)
+        query = select(categories.c.url).where(categories.c.category == selected_category)
         result = conn.execute(query).fetchall()
 
         # Convert the result to a list of dictionaries
@@ -84,7 +85,7 @@ def get_selected_category_from_db(selected_category):
 
         return selected_category
 
-def main():
+def choose_categories() -> list:
     """
     The main function of the Streamlit application. It provides a user
     interface for the user to select a product category, fetch the product
@@ -99,12 +100,18 @@ def main():
     # Create a button for the user to start the scraping process
     if st.button('Fetch Products'):
         st.write(f'Fetching products in the {selected_category} category...')
-        fetched_products = get_selected_category_from_db(selected_category)
+        fetched_products = get_selected_category_url_from_db(selected_category)
         st.write(f'Found {len(fetched_products)} products.')
 
-        # Display the fetched data in a table
-        st.write(fetched_products)
+        for product in fetched_products:
+
+            # Pass the list of URLs to the product scraper
+            get_product_data = ProductDetailsScraper(product, ApiSession)
+            
+            # Display the product data in a table
+            st.write('Displaying product data in a table...')
+            st.write(get_product_data.start_process())
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
