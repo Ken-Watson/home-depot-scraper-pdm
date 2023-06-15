@@ -29,17 +29,17 @@ import os
 
 import streamlit as st
 from dotenv import load_dotenv
-from product_details_scraper import ProductDetailsScraper, ApiSession
+from product_details.product_details_scraper import ProductDetailsScraper, ApiSession
 from sqlalchemy import MetaData, Table, create_engine, select
 
 load_dotenv()
 
 def get_database_url():
-  """Function to get the database URL from the environment variables."""
-  url = os.getenv("DB_URL")
-  if not url:
-      raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
-  return url
+    """Function to get the database URL from the environment variables."""
+    url = os.getenv("DB_URL")
+    if not url:
+        raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
+    return url
 
 # Create a database connection
 db_url = get_database_url()
