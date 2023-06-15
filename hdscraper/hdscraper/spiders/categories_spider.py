@@ -8,7 +8,7 @@ import scrapy
 
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-from hdscraper.items import HdscraperCategoryItem
+from ..items import HdscraperCategoryItem
 
 class CategorySpider(CrawlSpider):
     """
