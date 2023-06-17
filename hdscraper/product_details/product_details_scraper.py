@@ -3,7 +3,7 @@ import concurrent.futures
 from pprint import pprint
 from typing import List
 
-from product_details.api_session import ApiSession
+from .api_session import ApiSession
 
 API_URL = "https://www.homedepot.com/federation-gateway/graphql?opname=searchModel"
 
