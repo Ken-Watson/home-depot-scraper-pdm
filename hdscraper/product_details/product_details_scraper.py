@@ -1,6 +1,9 @@
+"""
+Module to scrape product details from a category page on HomeDepot.com
+"""
+
 import time
 import concurrent.futures
-from pprint import pprint
 from typing import List
 
 from .api_session import ApiSession
@@ -79,8 +82,8 @@ class ProductDetailsScraper:
                     index += 24
 
                 for future in concurrent.futures.as_completed(futures):
-                    results, total_products = future.result()
-                    self.all_products.extend(results)
+                    product, total_products = future.result()
+                    self.all_products.extend(product)
 
                 print(f"Scraped {len(self.all_products)} products")
 

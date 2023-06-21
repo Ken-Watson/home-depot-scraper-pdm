@@ -25,18 +25,13 @@ sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
 import os
-# import sys
-
-# # Add the root directory of the project to the Python path
-# root_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-# sys.path.append(root_path)
-
+import sys
 
 import streamlit as st
 from dotenv import load_dotenv
 from sqlalchemy import MetaData, Table, create_engine, select
 
-from product_details.product_details_scraper import (
+from hdscraper.product_details.product_details_scraper import (
     ApiSession, ProductDetailsScraper)
 
 load_dotenv()
@@ -88,28 +83,46 @@ def choose_categories():
     It provides a user interface for the user to select a product category,
     fetch the product data, and display the data.
     """
-    st.title('Product Scraper')
-    print("Current working directory:", os.getcwd())
+    st.title('Home Depot Product Scraper')
+    st.write('This application enables you to fetch product data from the Home Depot website.')
     db_url = get_database_url()
     engine = create_engine(db_url)
-
-    
 
     categories = get_categories_from_db(engine)
 
     selected_category = st.selectbox('Choose a product category', categories)
 
     # Create a button for the user to start the scraping process
-    if st.button('Fetch Products'):
-        st.write(f'Fetching products in the {selected_category} category...')
+    if st.button('Fetch Product Data'):
         fetched_products = get_selected_category_urls_from_db(engine, selected_category)
-        st.write(f'Found {len(fetched_products)} products.')
+        all_products = []
 
-        for product in fetched_products:
-            # Perform scraping or other operations on each product URL
-            get_product_data = ProductDetailsScraper(product, ApiSession)
-            st.write(get_product_data.get_product_details())
-            # ...
+        for url in fetched_products:
+            st.write(f'Scraping category for product data: {url}...')
+            get_product_data = ProductDetailsScraper(url, ApiSession)
+            products_returned = get_product_data.start_process()
+            
+            product_count = len(products_returned)
+            st.write(f'Found {product_count} products.')
 
-# if __name__ == '__main__':
-#     choose_categories()
+            all_products.extend(products_returned)
+
+        # Store the product data in the Streamlit session state
+        st.session_state.products = all_products
+
+    if st.button('Show Product Data'):
+        if 'products' in st.session_state:
+            st.json(st.session_state.products, expanded=False)
+        else:
+            st.write("No product data available. Please fetch products first.")
+
+        st.write('Finished scraping products.')
+        
+        # Add a stop button to gracefully exit the app
+        if st.button('Stop App'):
+            st.write('Stopping the app...')
+            os._exit(0)
+            
+
+if __name__ == '__main__':
+    choose_categories()
