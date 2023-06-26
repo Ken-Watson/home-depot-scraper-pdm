@@ -17,7 +17,11 @@ class CategoryDatabase(BaseDatabase):
             )
             """
         )
-        
+        self.conn.commit()
+
+    def delete_data(self):
+        """Drop all data from the table."""
+        self.cursor.execute("""DELETE FROM categories""")
         self.conn.commit()
 
     def write_data(self, data):

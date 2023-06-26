@@ -17,6 +17,10 @@ class BaseDatabase(ABC):
         """Create the table if it doesn't exist."""
 
     @abstractmethod
+    def delete_data(self):
+        """Drop all data from the table."""
+
+    @abstractmethod
     def write_data(self, data):
         """Write the data to the database."""
 

@@ -21,8 +21,10 @@ class CategoryDatabasePipeline:
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.database = CategoryDatabase("categories.db")
+        self.database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'categories.db'))
+        self.database = CategoryDatabase(self.database_path)
         self.database.create_table()
+        self.database.delete_data()
 
     def close_spider(self, spider):
         """Close the connection to the database."""

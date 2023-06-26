@@ -25,14 +25,18 @@ sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
 import os
-import sys
+import threading
 
 import streamlit as st
+import uvicorn
 from dotenv import load_dotenv
+from fastapi import FastAPI
 from sqlalchemy import MetaData, Table, create_engine, select
 
 from hdscraper.product_details.product_details_scraper import (
     ApiSession, ProductDetailsScraper)
+
+app = FastAPI()
 
 load_dotenv()
 
@@ -77,7 +81,9 @@ def get_selected_category_urls_from_db(engine, selected_category):
         print(f"Error accessing the database: {str(exc)}")
         return []
 
-def choose_categories():
+
+
+def fetch_products():
     """
     The main function of the Streamlit application.
     It provides a user interface for the user to select a product category,
@@ -95,34 +101,33 @@ def choose_categories():
     # Create a button for the user to start the scraping process
     if st.button('Fetch Product Data'):
         fetched_products = get_selected_category_urls_from_db(engine, selected_category)
-        all_products = []
 
         for url in fetched_products:
             st.write(f'Scraping category for product data: {url}...')
             get_product_data = ProductDetailsScraper(url, ApiSession)
             products_returned = get_product_data.start_process()
-            
+
             product_count = len(products_returned)
             st.write(f'Found {product_count} products.')
 
-            all_products.extend(products_returned)
-
-        # Store the product data in the Streamlit session state
-        st.session_state.products = all_products
-
-    if st.button('Show Product Data'):
-        if 'products' in st.session_state:
-            st.json(st.session_state.products, expanded=False)
-        else:
-            st.write("No product data available. Please fetch products first.")
+            st.json(products_returned, expanded=False)
 
         st.write('Finished scraping products.')
-        
+
         # Add a stop button to gracefully exit the app
-        if st.button('Stop App'):
-            st.write('Stopping the app...')
-            os._exit(0)
-            
+        if st.button('Close App'):
+            st.stop()
+
+# def run_fastapi():
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# def run_streamlit():
+#     fetch_products()
 
 if __name__ == '__main__':
-    choose_categories()
+    # fastapi_thread = threading.Thread(target=run_fastapi)
+    # streamlit_thread = threading.Thread(target=run_streamlit)
+
+    # fastapi_thread.start()
+    # streamlit_thread.start()
+    fetch_products()

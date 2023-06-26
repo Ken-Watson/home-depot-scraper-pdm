@@ -10,6 +10,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from ..items import HdscraperCategoryItem
 
+
 class CategorySpider(CrawlSpider):
     """
     Scrapy crawler class that goes to the site map page and extracts all
@@ -63,7 +64,8 @@ class CategorySpider(CrawlSpider):
                 seen_urls.add(category_link)
                 if link.css("::text").get().strip():
                     item["category"] = link.css("::text").get().strip()
-                    item["url"] = category_link
+                    item["url"] = category_link + "?catStyle=ShowProducts"
 
                     # Yield the item to be processed in pipelines.py
                     yield item
+
