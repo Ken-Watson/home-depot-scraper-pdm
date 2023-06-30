@@ -5,8 +5,10 @@ Module to scrape product details from a category page on HomeDepot.com
 import time
 import concurrent.futures
 from typing import List
+import asyncio
 
 from .api_session import ApiSession
+import pdb
 
 API_URL = "https://www.homedepot.com/federation-gateway/graphql?opname=searchModel"
 
@@ -61,6 +63,36 @@ class ProductDetailsScraper:
         }
 
         return [product_data]
+    
+    def get_product_page(self, index, category_code):
+        """Scrape and process product data for a given page"""
+        api_session = self.api_session(f"{self.category_url}{str(index)}")
+        response = api_session.make_api_request(API_URL, index, category_code)
+        if response:
+            data = response.get("data", {}).get("searchModel", {})
+            total_products = data.get("searchReport", {}).get("totalProducts", 0) if data else 0
+            products = data.get("products", []) if data else []
+
+            product_data = []
+            processed_ids = set()  # Set to store processed product IDs
+
+            for product in products:
+                product_id = product.get("id")
+                processed_ids.add(product_id)  # Add product ID to set (no need to check existence)
+
+            # Process only the unique products (avoiding duplicates)
+            unique_products = [product for product in products if product.get("id") in processed_ids]
+
+            for product in unique_products:
+                product_data.extend(self.scrape_product_data(product))
+
+            return product_data, total_products
+
+            # product_data = []
+            # for product in products:
+            #     product_data.extend(self.scrape_product_data(product))
+
+            # return product_data, total_products
 
     def start_process(self):
         """Retrieve and process product data for a given category"""
@@ -74,9 +106,11 @@ class ProductDetailsScraper:
         total_products = None
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
+            # while index < total_products:
             while total_products is None or index < total_products:
                 futures = []
                 for _ in range(4):  # Adjust the number of concurrent requests as per your needs
+                    # pdb.set_trace()
                     future = executor.submit(self.get_product_page, index, category_code)
                     futures.append(future)
                     index += 24
@@ -91,29 +125,13 @@ class ProductDetailsScraper:
 
         return self.all_products
 
-    def get_product_page(self, index, category_code):
-        """Scrape and process product data for a given page"""
-        api_session = self.api_session(f"{self.category_url}{str(index)}")
-        response = api_session.make_api_request(API_URL, index, category_code)
-        if response:
-            data = response.get("data", {}).get("searchModel", {})
-            total_products = data.get("searchReport", {}).get("totalProducts", 0)
-            products = data.get("products", [])
-
-            product_data = []
-            for product in products:
-                product_data.extend(self.scrape_product_data(product))
-
-            return product_data, total_products
-
-
 # if __name__ == "__main__":
-#     # pylint: disable=C0301
-#     CATEGORY_URL = "https://www.homedepot.com/b/Cleaning-Household-Essentials-Room-Fresheners-Air-Fresheners/N-5yc1vZcb2j?catStyle=ShowProducts&Nao="
+    # # pylint: disable=C0301
+    # CATEGORY_URL = "https://www.homedepot.com/b/Cleaning-Household-Essentials-Room-Fresheners-Air-Fresheners/N-5yc1vZcb2j?catStyle=ShowProducts&Nao="
 
-#     get_product_data = ProductDetailsScraper(CATEGORY_URL, ApiSession)
-#     product_list = get_product_data.start_process()
+    # get_product_data = ProductDetailsScraper(CATEGORY_URL, ApiSession)
+    # product_list = get_product_data.start_process()
 
-#     for item in product_list:
-#         pprint(item)
-#         print("------------------------")
+    # for item in product_list:
+    #     pprint(item)
+    #     print("------------------------")

@@ -32,6 +32,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from sqlalchemy import MetaData, Table, create_engine, select
+import time
 
 from hdscraper.product_details.product_details_scraper import (
     ApiSession, ProductDetailsScraper)
@@ -102,15 +103,31 @@ def fetch_products():
     if st.button('Fetch Product Data'):
         fetched_products = get_selected_category_urls_from_db(engine, selected_category)
 
+        progress_bar = st.progress(0)  # Create a progress bar widget
+        # total_urls = len(fetched_products)
+
+        progress_text = st.empty()  # Create a text element to display progress
+
         for url in fetched_products:
             st.write(f'Scraping category for product data: {url}...')
             get_product_data = ProductDetailsScraper(url, ApiSession)
             products_returned = get_product_data.start_process()
 
             product_count = len(products_returned)
-            st.write(f'Found {product_count} products.')
+            st.write(f'Found {product_count} unique products.')
 
+            for i, _ in enumerate(products_returned):
+                progress_text.text(f'Fetching product data for product # {i + 1} of {product_count}...')
+                
+                time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
+
+                progress = (i + 1) / product_count
+                progress_bar.progress(progress)  # Update the progress bar
+            
             st.json(products_returned, expanded=False)
+
+            progress_text.empty()  # Clear the progress text
+            progress_bar.empty()  # Clear the progress bar
 
         st.write('Finished scraping products.')
 

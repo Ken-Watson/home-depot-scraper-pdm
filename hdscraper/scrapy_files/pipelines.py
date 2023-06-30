@@ -17,7 +17,8 @@ load_dotenv()
 class CategoryDatabasePipeline:
     """Pipeline to handle the categories table."""
     def __init__(self):
-        self.database: Optional[CategoryDatabase] = None
+        self.database: Optional[CategoryDatabase] = None,
+        self.database_path: Optional[str] = None
 
     def open_spider(self, spider):
         """Open the connection to the database."""
