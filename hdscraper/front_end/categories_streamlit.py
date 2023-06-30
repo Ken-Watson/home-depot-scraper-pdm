@@ -26,6 +26,7 @@ sqlalchemy - Used to connect to the SQLite database and fetch data.
 
 import os
 import threading
+from tqdm import tqdm
 
 import streamlit as st
 import uvicorn
@@ -90,46 +91,51 @@ def fetch_products():
     It provides a user interface for the user to select a product category,
     fetch the product data, and display the data.
     """
+    
     st.title('Home Depot Product Scraper')
     st.write('This application enables you to fetch product data from the Home Depot website.')
+    st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
+    st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
+
     db_url = get_database_url()
     engine = create_engine(db_url)
-
     categories = get_categories_from_db(engine)
-
     selected_category = st.selectbox('Choose a product category', categories)
 
     # Create a button for the user to start the scraping process
     if st.button('Fetch Product Data'):
         fetched_products = get_selected_category_urls_from_db(engine, selected_category)
 
-        progress_bar = st.progress(0)  # Create a progress bar widget
-        # total_urls = len(fetched_products)
+        st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
+        st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
 
+        progress_bar = st.progress(0)  # Create a progress bar widget
         progress_text = st.empty()  # Create a text element to display progress
 
-        for url in fetched_products:
-            st.write(f'Scraping category for product data: {url}...')
-            get_product_data = ProductDetailsScraper(url, ApiSession)
-            products_returned = get_product_data.start_process()
+        with st.spinner('Scraping in progress...'):  # Display a spinner while scraping
+            for url in fetched_products:
+                st.write(f'Products can be found at this page:  {url}')
+    
+                get_product_data = ProductDetailsScraper(url, ApiSession)
+                products_returned = get_product_data.start_process()
 
-            product_count = len(products_returned)
-            st.write(f'Found {product_count} unique products.')
+                product_count = len(products_returned)
+                st.write(f'Found {product_count} unique products.')
 
-            for i, _ in enumerate(products_returned):
-                progress_text.text(f'Fetching product data for product # {i + 1} of {product_count}...')
+                for i, _ in enumerate(tqdm(products_returned, desc='Fetching product data', unit='Product')):
+                    progress_text.text(f'Fetching product data for product # {i + 1} of {product_count} products')
+                    
+                    time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
+
+                    progress = int(100 * (i + 1) / product_count)
+                    progress_bar.progress(progress)  # Update the progress bar
                 
-                time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
-
-                progress = (i + 1) / product_count
-                progress_bar.progress(progress)  # Update the progress bar
-            
-            st.json(products_returned, expanded=False)
+                st.json(products_returned, expanded=False)
 
             progress_text.empty()  # Clear the progress text
             progress_bar.empty()  # Clear the progress bar
 
-        st.write('Finished scraping products.')
+        # st.success('Finished scraping products.')
 
         # Add a stop button to gracefully exit the app
         if st.button('Close App'):
