@@ -7,10 +7,31 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "hdscraper"
+BOT_NAME = "scrapy_files"
 
-SPIDER_MODULES = ["hdscraper.spiders"]
-NEWSPIDER_MODULE = "hdscraper.spiders"
+SPIDER_MODULES = ["scrapy_files.spiders"]
+NEWSPIDER_MODULE = "scrapy_files.spiders"
+
+import os
+
+# Get the root directory path
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Set the output file path for the category database
+DATABASE_PATH = os.path.join(ROOT_DIR, 'categories.db')
+
+# Database settings
+DATABASE = {
+    'drivername': 'sqlite',
+    'database': DATABASE_PATH,
+    'query': {
+        'charset': 'utf8',
+    },
+}
+
+# Configure item pipelines
+# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+ITEM_PIPELINES = {"scrapy_files.pipelines.CategoryDatabasePipeline": 300}
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -59,10 +80,6 @@ ROBOTSTXT_OBEY = True
 # EXTENSIONS = {
 #    "scrapy.extensions.telnet.TelnetConsole": None,
 # }
-
-# Configure item pipelines
-# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {"hdscraper.pipelines.CategoryDatabasePipeline": 300}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

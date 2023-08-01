@@ -6,18 +6,26 @@
 import os
 from typing import Optional
 
+from dotenv import load_dotenv
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+
+from database.category_database import CategoryDatabase
+
+load_dotenv()
 
 class CategoryDatabasePipeline:
     """Pipeline to handle the categories table."""
     def __init__(self):
-        self.database: Optional[CategoryDatabase] = None
+        self.database: Optional[CategoryDatabase] = None,
+        self.database_path: Optional[str] = None
 
     def open_spider(self, spider):
         """Open the connection to the database."""
-        self.database = CategoryDatabase("database/categories.db")
+        self.database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'categories.db'))
+        self.database = CategoryDatabase(self.database_path)
         self.database.create_table()
+        self.database.delete_data()
 
     def close_spider(self, spider):
         """Close the connection to the database."""

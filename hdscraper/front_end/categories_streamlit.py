@@ -24,87 +24,135 @@ json - Used to convert the product data to JSON format.
 sqlalchemy - Used to connect to the SQLite database and fetch data.
 """
 
-import json
 import os
+import threading
+from tqdm import tqdm
 
 import streamlit as st
+import uvicorn
 from dotenv import load_dotenv
+from fastapi import FastAPI
 from sqlalchemy import MetaData, Table, create_engine, select
+import time
+
+from hdscraper.product_details.product_details_scraper import (
+    ApiSession, ProductDetailsScraper)
+
+app = FastAPI()
 
 load_dotenv()
 
 def get_database_url():
-  """Function to get the database URL from the environment variables."""
-  url = os.getenv("DB_URL")
-  if not url:
-      raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
-  return url
+    """Function to get the database URL from the environment variables."""
+    url = os.getenv("DB_URL")
+    if not url:
+        raise ValueError("DB_URL environment variable not found. Please set it in your .env file.")
+    return url
 
-# Create a database connection
-db_url = get_database_url()
-engine = create_engine(db_url)
-
-# print(db_url)
-# print("Current working directory:", os.getcwd())
-
-# Create a table object
-def get_categories_from_db():
+def get_categories_from_db(engine):
     """
-    Function to fetch product data from the SQLite database. It takes a
-    product category as input and returns a list of dictionaries where
-    each dictionary contains the product data.
+    Function to fetch product categories from the SQLite database.
+    It takes a database engine as input and returns a list of categories.
     """
+    try:
+        with engine.connect() as conn:
+            meta = MetaData(bind=engine)
+            categories_table = Table("categories", meta, autoload=True, autoload_with=engine)
+            query = select(categories_table.c.category)
+            result = conn.execute(query).fetchall()
+            categories = [category[0] for category in result]
+            return categories
+    except Exception as exc:
+        print(f"Error accessing the database: {str(exc)}")
+        return []
 
-  with engine.connect() as conn:
-      meta = MetaData(bind=engine)
-      categories = Table("categories", meta, autoload=True, autoload_with=engine)
-      query = select(categories.c.category)
-      result = conn.execute(query).fetchall()
-
-        # Convert the result to a list of dictionaries
-        categories = [category[0] for category in result]
-        # print(categories)
-
-      return categories
-
-def get_selected_category_from_db(selected_category):
+def get_selected_category_urls_from_db(engine, selected_category):
     """
-    Function to fetch product data from the SQLite database. It takes a
-    product category as input and returns a list of dictionaries where
-    each dictionary contains the product data.
+    Function to fetch product URLs for the selected category from the SQLite database.
+    It takes a database engine and a selected category as input and returns a list of URLs.
     """
-    with engine.connect() as conn:
-        meta = MetaData(bind=engine)
-        categories = Table("categories", meta, autoload=True, autoload_with=engine)
-        query = select(categories.c.category).where(categories.c.category == selected_category)
-        result = conn.execute(query).fetchall()
+    try:
+        with engine.connect() as conn:
+            meta = MetaData(bind=engine)
+            categories_table = Table("categories", meta, autoload=True, autoload_with=engine)
+            query = select(categories_table.c.url).where(categories_table.c.category == selected_category)
+            result = conn.execute(query).fetchall()
+            urls = [row[0] for row in result]
+            return urls
+    except Exception as exc:
+        print(f"Error accessing the database: {str(exc)}")
+        return []
 
-        # Convert the result to a list of dictionaries
-        selected_category = [category[0] for category in result]
 
-        return selected_category
 
-def main():
+def fetch_products():
     """
-    The main function of the Streamlit application. It provides a user
-    interface for the user to select a product category, fetch the product
-    data, and display the data.
+    The main function of the Streamlit application.
+    It provides a user interface for the user to select a product category,
+    fetch the product data, and display the data.
     """
-    st.title('Product Scraper')
+    
+    st.title('Home Depot Product Scraper')
+    st.write('This application enables you to fetch product data from the Home Depot website.')
+    st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
+    st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
 
-    categories = get_categories_from_db()
-
+    db_url = get_database_url()
+    engine = create_engine(db_url)
+    categories = get_categories_from_db(engine)
     selected_category = st.selectbox('Choose a product category', categories)
 
     # Create a button for the user to start the scraping process
-    if st.button('Fetch Products'):
-        st.write(f'Fetching products in the {selected_category} category...')
-        fetched_products = get_selected_category_from_db(selected_category)
-        st.write(f'Found {len(fetched_products)} products.')
+    if st.button('Fetch Product Data'):
+        fetched_products = get_selected_category_urls_from_db(engine, selected_category)
 
-        # Display the fetched data in a table
-        st.write(fetched_products)
+        st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
+        st.markdown('<br>', unsafe_allow_html=True)  # Add a line break
 
+        progress_bar = st.progress(0)  # Create a progress bar widget
+        progress_text = st.empty()  # Create a text element to display progress
+
+        with st.spinner('Scraping in progress...'):  # Display a spinner while scraping
+            for url in fetched_products:
+                st.write(f'Products can be found at this page:  {url}')
+    
+                get_product_data = ProductDetailsScraper(url, ApiSession)
+                products = get_product_data.start_process()
+
+                product_count = len(products)
+                st.write(f'Found {product_count} unique products.')
+
+                # batch_size = 100
+                # for i, _ in enumerate(tqdm(products_returned, desc='Fetching product data', unit='Product')):
+                # progress_text.text(f'Fetching product data for product # {i + 1} of {product_count} products')
+                
+                # time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
+
+                # progress = int(100 * (i + 1) / product_count)
+                
+                # progress_bar.progress(progress)  # Update the progress bar
+                
+                st.table(products)
+
+            progress_text.empty()  # Clear the progress text
+            progress_bar.empty()  # Clear the progress bar
+
+        # st.success('Finished scraping products.')
+
+        # Add a stop button to gracefully exit the app
+        if st.button('Close App'):
+            st.stop()
+
+# def run_fastapi():
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# def run_streamlit():
+#     fetch_products()
 
 if __name__ == '__main__':
-    main()
+    # fastapi_thread = threading.Thread(target=run_fastapi)
+    # streamlit_thread = threading.Thread(target=run_streamlit)
+
+    # fastapi_thread.start()
+    # streamlit_thread.start()
+    fetch_products()
