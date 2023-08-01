@@ -117,20 +117,22 @@ def fetch_products():
                 st.write(f'Products can be found at this page:  {url}')
     
                 get_product_data = ProductDetailsScraper(url, ApiSession)
-                products_returned = get_product_data.start_process()
+                products = get_product_data.start_process()
 
-                product_count = len(products_returned)
+                product_count = len(products)
                 st.write(f'Found {product_count} unique products.')
 
-                for i, _ in enumerate(tqdm(products_returned, desc='Fetching product data', unit='Product')):
-                    progress_text.text(f'Fetching product data for product # {i + 1} of {product_count} products')
-                    
-                    time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
-
-                    progress = int(100 * (i + 1) / product_count)
-                    progress_bar.progress(progress)  # Update the progress bar
+                # batch_size = 100
+                # for i, _ in enumerate(tqdm(products_returned, desc='Fetching product data', unit='Product')):
+                # progress_text.text(f'Fetching product data for product # {i + 1} of {product_count} products')
                 
-                st.json(products_returned, expanded=False)
+                # time.sleep(0.1)  # Introduce a small delay to allow the progress bar to update
+
+                # progress = int(100 * (i + 1) / product_count)
+                
+                # progress_bar.progress(progress)  # Update the progress bar
+                
+                st.table(products)
 
             progress_text.empty()  # Clear the progress text
             progress_bar.empty()  # Clear the progress bar
