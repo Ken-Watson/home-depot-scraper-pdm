@@ -1,7 +1,7 @@
 # HomeDepot.com Product Scraper Project
 
 ## Introduction:
-The aim of this project is to build a web scraper in Python using a combination of tools to extract product data from HomeDepot.com. The web scraper will have an online interface using Streamlit where the user can select multiple categories they want to query. The selected categories will be used to create a list of category links which will be fed into a product details scraper. The spider will read each link, scrape all the product data, and return the data back to the user through an API.
+The aim of this project is to build a web scraper in Python using a combination of tools to extract product data from HomeDepot.com for price comparisons in the remediation services industr. This is an ongoing project aimed at comparing the pricing of remediation services with the material costs available on HomeDepot.com. The purpose of this comparison is to assist in insurance claims related to remediation expenses. The web scraper will have an online interface using Streamlit where the user can select multiple categories they want to query. The selected categories will be used to create a list of category links which will be fed into a product details scraper. The spider will read each link, scrape all the product data, and return the data back to the user through an API.
 
 ## Technologies Used:
   * Python 3
